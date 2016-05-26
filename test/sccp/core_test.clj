@@ -14,6 +14,10 @@
     (is (= (coords-to-squares {:r 1 :f 1}) 9)) 
     (is (= (coords-to-squares {:r 9 :f 1}) nil)
     (is (= (coords-to-squares {:r 4 :f 6}) 38))))
+  (testing "square math"
+    (is (= (add-coords {:r 3 :f 4} {:r 1 :f 1}) {:r 4 :f 5}))
+    (is (= (add-coords {:r 3 :f 4} {:r 0 :f -1}) {:r 3 :f 3})))
+           
 )
 
 

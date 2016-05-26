@@ -8,3 +8,5 @@
 
 (def squares-to-coords (zipmap squares (map #(hash-map :r (quot % 8) :f (mod % 8)) squares)))
 (def coords-to-squares (map-invert squares-to-coords))
+
+(def add-coords (partial merge-with +))
