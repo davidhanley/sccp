@@ -16,6 +16,8 @@
 (def ranks (vec "87654321"))
 (def square-strings (map #(str (files (:f %))(ranks (:r %))) square-coordinates)) 
 
+(defn to-coord[sq](or (square-to-coord sq) sq))
+
 ;and now the symbols 
 (def square-symbols (map keyword square-strings))
 
@@ -29,6 +31,7 @@
 
 (def knight-deltas [[-2 -1][-2 1][-1 -2][-1 2][1 -2][1 2][2 -1][2 1]])
 (def king-deltas [[-1 -1][-1 0][-1 1][0 -1][0 1][1 -1][1 0][1 1]])
+
 
 (defn make-move[f t]{:f (coord-to-square f) :t (coord-to-square t)})
 
@@ -51,3 +54,16 @@
 (def rook-moves (slider-gen rook-deltas))
 (def bishop-moves (slider-gen bishop-deltas))
 (def queen-moves (merge-with concat rook-moves bishop-moves))
+
+(defn promotify[m]
+  (let [r (:r (to-coord (:t m)))]
+    (print r)
+    (cond (= r 0)(map (partial assoc m :promotes) [:q :r :b :n])
+          (= r 7)(map (partial assoc m :promotes) [:q :r :b :n])
+          true [m])))
+
+(defn pawn-move[c delta] 
+     (let [e #(add-coords c {:r delta :f %})] 
+     {:forward (promotify (make-move c (e 0)))
+      :captures (map promotify (map (partial make-move c) (filter coord-to-square (map e [-1 1]))))}))
+
