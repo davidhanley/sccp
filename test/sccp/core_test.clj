@@ -21,6 +21,16 @@
     (is (= (count (moves-for-slider bishop-deltas {:r 0 :f 0})) 1)))
 )
 
+(deftest piece-lookup
+  (testing "piece count right"
+    (is (= (count pieces) 12)))
+  (testing "lookups look good"
+    (is (every? #(< (:side (string-to-piece %) 0)) "pnbrqk"))
+    (is (= (string-to-piece "N") wknight))
+  )
+ 
+)
+
 (deftest move-lookups 
   (testing "knight move counts"
     (is (= (count (knight-moves :e4)) 8))
@@ -32,5 +42,13 @@
   (testing "bishop-move-counts"
     (is (= (count (reduce concat (bishop-moves :h1))) 7))
     (is (= (count (reduce concat (bishop-moves :e4))) 13)))
+  (testing "pawn move counts"
+    (is (= (count (:forward (white-pawn-moves :e4))) 1))
+    (is (= (count (:captures (white-pawn-moves :e4))) 2))
+    (is (= (count (:captures (white-pawn-moves :h4))) 1))
+    (is (= (count (:captures (white-pawn-moves :h7))) 4))
+    (is (= (count (:captures (white-pawn-moves :e7))) 8))
+)
+
 )
 

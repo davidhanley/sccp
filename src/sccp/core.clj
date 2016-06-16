@@ -16,8 +16,6 @@
 (def ranks (vec "87654321"))
 (def square-strings (map #(str (files (:f %))(ranks (:r %))) square-coordinates)) 
 
-(defn to-coord[sq](or (square-to-coord sq) sq))
-
 ;and now the symbols 
 (def square-symbols (map keyword square-strings))
 
@@ -25,9 +23,10 @@
 (def coord-to-square (zipmap square-coordinates square-symbols))
 (def square-to-coord (map-invert coord-to-square))
 
-(def add-coords (partial merge-with +))
-
+(defn to-coord[sq](or (square-to-coord sq) sq))
 (def to-coords (partial map (fn[[r f]]{:r r :f f})))
+
+(def add-coords (partial merge-with +))
 
 (def knight-deltas [[-2 -1][-2 1][-1 -2][-1 2][1 -2][1 2][2 -1][2 1]])
 (def king-deltas [[-1 -1][-1 0][-1 1][0 -1][0 1][1 -1][1 0][1 1]])
@@ -55,15 +54,40 @@
 (def bishop-moves (slider-gen bishop-deltas))
 (def queen-moves (merge-with concat rook-moves bishop-moves))
 
+(declare white-pawn-gen black-pawn-gen)
+
+(defn defpiece[n g v gen ev](list 'def n {:glyph g :value v :side (Integer/signum v) :generator gen :eval ev}))
+(defmacro defpieces[& args](let [el (partition 5 args)
+                                 names (vec (map first el))](concat ['do] (map #(apply defpiece %) el)(list (list 'def 'pieces names)))))
+
+(defpieces wpawn   "P" 100 nil nil 
+           wknight "N" 325 nil nil 
+           wbishop "B" 350 nil nil
+           wrook   "R" 500 nil nil
+           wqueen  "Q" 950 nil nil
+           wking   "K" 10000 nil nil 
+           bpawn   "p" -100 nil nil 
+           bknight "n" -325 nil nil 
+           bbishop "b" -350 nil nil
+           brook   "r" -500 nil nil
+           bqueen  "q" -950 nil nil
+           bking   "k" -10000 nil nil)
+
+(def string-to-piece (zipmap (map :glyph pieces) pieces))
+
 (defn promotify[m]
   (let [r (:r (to-coord (:t m)))]
-    (print r)
-    (cond (= r 0)(map (partial assoc m :promotes) [:q :r :b :n])
-          (= r 7)(map (partial assoc m :promotes) [:q :r :b :n])
+    (cond (= r 0)(map (partial assoc m :promotes) [wqueen wrook wbishop wknight])
+          (= r 7)(map (partial assoc m :promotes) [bqueen brook bbishop bknight])
           true [m])))
 
-(defn pawn-move[c delta] 
+(defn pawn-move[delta c] 
      (let [e #(add-coords c {:r delta :f %})] 
      {:forward (promotify (make-move c (e 0)))
-      :captures (map promotify (map (partial make-move c) (filter coord-to-square (map e [-1 1]))))}))
+      :captures (apply concat (map promotify (map (partial make-move c) (filter coord-to-square (map e [-1 1])))))}))
+
+(defn pawngen[d](into {} (map (fn [[c sq]][sq (pawn-move d c)]) coord-to-square)))
+
+(def white-pawn-moves (pawngen -1))
+(def black-pawn-moves (pawngen 1))
 
