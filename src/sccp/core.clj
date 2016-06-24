@@ -31,8 +31,23 @@
 (def knight-deltas [[-2 -1][-2 1][-1 -2][-1 2][1 -2][1 2][2 -1][2 1]])
 (def king-deltas [[-1 -1][-1 0][-1 1][0 -1][0 1][1 -1][1 0][1 1]])
 
+(def flip-side {:white :black :black :white})
 
-(defn make-move[f t]{:f (coord-to-square f) :t (coord-to-square t)})
+(defn make-player[f t]
+  (fn[bd]
+     (let [moving (:to-move bd)
+           enemy (flip-side moving)
+           mine (moving bd)
+           his (enemy bd)
+           piece (f (moving bd))]
+       (assoc bd
+         :to-move (flip-side moving)
+         moving (dissoc (assoc mine t piece) f)
+         enemy (dissoc his t)))))
+
+(defn coordify[cos](or (coord-to-square cos) cos))
+
+(defn make-move[f t](let [cf (coordify f) ct (coordify t)] {:f cf :t ct :player (make-player cf ct)}))
 
 (defn hopper-gen[delt] 
   (into {} (map (fn [[c sq]][sq (map (partial make-move c) (filter coord-to-square (map (partial add-coords c) (to-coords delt))))]) coord-to-square)))
@@ -56,7 +71,7 @@
 
 (declare white-pawn-gen black-pawn-gen)
 
-(defn defpiece[n g v gen ev](list 'def n {:glyph g :value v :side (Integer/signum v) :generator gen :eval ev}))
+(defn defpiece[n g v gen ev](list 'def n {:glyph (first g) :value v :side (Integer/signum v) :generator gen :eval ev}))
 (defmacro defpieces[& args](let [el (partition 5 args)
                                  names (vec (map first el))](concat ['do] (map #(apply defpiece %) el)(list (list 'def 'pieces names)))))
 
@@ -73,7 +88,7 @@
            bqueen  "q" -950 nil nil
            bking   "k" -10000 nil nil)
 
-(def string-to-piece (zipmap (map :glyph pieces) pieces))
+(def char-to-piece (zipmap (map :glyph pieces) pieces))
 
 (defn promotify[m]
   (let [r (:r (to-coord (:t m)))]
@@ -91,3 +106,28 @@
 (def white-pawn-moves (pawngen -1))
 (def black-pawn-moves (pawngen 1))
 
+(def start-string 
+  (concat "rnbqkbnr" 
+          "pppppppp" 
+          "        "
+          "        "
+          "        "
+          "        "
+          "PPPPPPPP"
+          "RNBQKBNR"))    
+
+(defn string-to-board[s]
+  (let [pieces (map char-to-piece s)
+        piece-squares (zipmap square-symbols pieces) 
+        side #(into {} (filter (fn [[s p]](= (:side p) %)) piece-squares)) ]
+	{:to-move :white
+         :white (side 1)
+         :black (side -1)}))
+
+(def sb (string-to-board start-string))
+
+
+
+(defn side-material[board side](reduce + (map :value (vals (side board)))))
+
+(defn sum-material[board](+ (side-material board :white)(side-material board :black)))

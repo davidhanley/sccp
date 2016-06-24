@@ -25,8 +25,8 @@
   (testing "piece count right"
     (is (= (count pieces) 12)))
   (testing "lookups look good"
-    (is (every? #(< (:side (string-to-piece %) 0)) "pnbrqk"))
-    (is (= (string-to-piece "N") wknight))
+    (is (every? #(< (:side (char-to-piece %) 0)) "pnbrqk"))
+    (is (= (char-to-piece \N) wknight))
   )
  
 )
@@ -50,5 +50,17 @@
     (is (= (count (:captures (white-pawn-moves :e7))) 8))
 )
 
+)
+
+(deftest play-testing 
+  (testing "simple moves work"
+    (let [sm (make-move :e2 :e4)
+          new-board ((:player sm) sb)]
+      (is (= (:f sm) :e2))
+      (is (= (:t sm) :e4))
+      (is (= (:e2 (:white new-board)) nil))
+      (is (= (:e4 (:white new-board)) wpawn))
+      )
+    )
 )
 
