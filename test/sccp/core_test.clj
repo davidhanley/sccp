@@ -55,7 +55,7 @@
 (deftest play-testing 
   (testing "simple moves work"
     (let [sm (make-move :e2 :e4)
-          new-board ((:player sm) sb)]
+          new-board (play-move sb sm)]
       (is (= (:f sm) :e2))
       (is (= (:t sm) :e4))
       (is (= (:e2 (:white new-board)) nil))
@@ -63,4 +63,12 @@
       )
     )
 )
+
+(deftest material 
+  (testing "start board material"
+    (is (= (side-material sb :white) 14100))
+    (is (= (side-material sb :black) -14100))
+    (is (= (sum-material sb) 0))))
+
+    
 

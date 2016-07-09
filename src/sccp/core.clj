@@ -33,9 +33,10 @@
 
 (def flip-side {:white :black :black :white})
 
-(defn make-player[f t]
-  (fn[bd]
-     (let [moving (:to-move bd)
+(defn play-move[bd move]
+     (let [f (:f move)
+           t (:t move)
+           moving (:to-move bd)
            enemy (flip-side moving)
            mine (moving bd)
            his (enemy bd)
@@ -43,11 +44,12 @@
        (assoc bd
          :to-move (flip-side moving)
          moving (dissoc (assoc mine t piece) f)
-         enemy (dissoc his t)))))
+         enemy (dissoc his t))))
 
 (defn coordify[cos](or (coord-to-square cos) cos))
 
-(defn make-move[f t](let [cf (coordify f) ct (coordify t)] {:f cf :t ct :player (make-player cf ct)}))
+(defn make-move[f t & rest](let [cf (coordify f) ct (coordify t)] (apply assoc {} :f cf :t ct rest)))
+ 
 
 (defn hopper-gen[delt] 
   (into {} (map (fn [[c sq]][sq (map (partial make-move c) (filter coord-to-square (map (partial add-coords c) (to-coords delt))))]) coord-to-square)))
