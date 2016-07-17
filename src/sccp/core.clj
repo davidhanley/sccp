@@ -58,6 +58,12 @@
 
 (def king-moves (hopper-gen king-deltas))
 
+(defn generate-moves-for-hopper[lookup board from-square]
+  (let [moving (board :to-move)
+        my-guys (board moving)
+        pseudomoves (lookup from-square)]
+    (filter (fn[mv](not (my-guys (:t mv)))) pseudomoves)))
+           
 (defn ray[s d](map (partial make-move s) (rest (take-while coord-to-square (iterate (partial add-coords d) s)))))
 
 (def rook-deltas [[1 0][-1 0][0 1][0 -1]])
@@ -73,7 +79,9 @@
 
 (declare white-pawn-gen black-pawn-gen)
 
-(defn defpiece[n g v gen ev](list 'def n {:glyph (first g) :value v :side (Integer/signum v) :generator gen :eval ev}))
+(defn side-for-value[value](if (< value 0) :black :white))
+
+(defn defpiece[n g v gen ev](list 'def n {:glyph (first g) :value v :side (side-for-value v) :generator gen :eval ev}))
 (defmacro defpieces[& args](let [el (partition 5 args)
                                  names (vec (map first el))](concat ['do] (map #(apply defpiece %) el)(list (list 'def 'pieces names)))))
 
@@ -123,12 +131,13 @@
         piece-squares (zipmap square-symbols pieces) 
         side #(into {} (filter (fn [[s p]](= (:side p) %)) piece-squares)) ]
 	{:to-move :white
-         :white (side 1)
-         :black (side -1)}))
+         :white (side :white)
+         :black (side :black)}))
 
 (def sb (string-to-board start-string))
 
-
+; no need for zorbist codes, the board itself is a hash(!)
+(def board-hash (atom {}))
 
 (defn side-material[board side](reduce + (map :value (vals (side board)))))
 

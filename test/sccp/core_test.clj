@@ -21,6 +21,31 @@
     (is (= (count (moves-for-slider bishop-deltas {:r 0 :f 0})) 1)))
 )
 
+(deftest piece-tests
+  (testing "getting side for piece values"
+    (is (= (side-for-value -100) :black))
+    (is (= (side-for-value -500) :black))
+    (is (= (side-for-value 350) :white)))
+)
+
+(deftest hopping-movegen
+  (testing "white king won't capture own men"
+    (is (= (count (generate-moves-for-hopper king-moves sb :e3)) 5)))
+  (testing "but it will capture black ones"
+    (is (= (count (generate-moves-for-hopper king-moves sb :e6)) 8)))
+  (testing "white knight won't capture own men"
+    (is (= (count (generate-moves-for-hopper knight-moves sb :g1)) 2)))
+  (testing "white knight moves form h5==4"
+    (is (= (count (generate-moves-for-hopper knight-moves sb :h5)) 4)))
+  (let [bsb (assoc sb :to-move :black)]
+    (testing "black king won't capture own men"
+      (is (= (count (generate-moves-for-hopper king-moves bsb :e6)) 5)))
+    (testing "white... sure"
+      (is (= (count (generate-moves-for-hopper king-moves bsb :e3)) 8)))  
+    )
+)
+
+
 (deftest piece-lookup
   (testing "piece count right"
     (is (= (count pieces) 12)))
