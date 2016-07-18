@@ -86,17 +86,17 @@
                                  names (vec (map first el))](concat ['do] (map #(apply defpiece %) el)(list (list 'def 'pieces names)))))
 
 (defpieces wpawn   "P" 100 nil nil 
-           wknight "N" 325 nil nil 
+           wknight "N" 325 (partial generate-moves-for-hopper knight-moves) nil 
            wbishop "B" 350 nil nil
            wrook   "R" 500 nil nil
            wqueen  "Q" 950 nil nil
-           wking   "K" 10000 nil nil 
+           wking   "K" 10000 (partial generate-moves-for-hopper king-moves) nil 
            bpawn   "p" -100 nil nil 
-           bknight "n" -325 nil nil 
+           bknight "n" -325 (partial generate-moves-for-hopper knight-moves) nil 
            bbishop "b" -350 nil nil
            brook   "r" -500 nil nil
            bqueen  "q" -950 nil nil
-           bking   "k" -10000 nil nil)
+           bking   "k" -10000 (partial generate-moves-for-hopper king-moves) nil)
 
 (def char-to-piece (zipmap (map :glyph pieces) pieces))
 

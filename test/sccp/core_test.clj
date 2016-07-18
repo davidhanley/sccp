@@ -30,18 +30,18 @@
 
 (deftest hopping-movegen
   (testing "white king won't capture own men"
-    (is (= (count (generate-moves-for-hopper king-moves sb :e3)) 5)))
+    (is (= (count ((:generator wking) sb :e3)) 5)))
   (testing "but it will capture black ones"
-    (is (= (count (generate-moves-for-hopper king-moves sb :e6)) 8)))
+    (is (= (count ((:generator wking) sb :e6)) 8)))
   (testing "white knight won't capture own men"
-    (is (= (count (generate-moves-for-hopper knight-moves sb :g1)) 2)))
+    (is (= (count ((:generator wknight) sb :g1)) 2)))
   (testing "white knight moves form h5==4"
-    (is (= (count (generate-moves-for-hopper knight-moves sb :h5)) 4)))
+    (is (= (count ((:generator wknight) sb :h5)) 4)))
   (let [bsb (assoc sb :to-move :black)]
     (testing "black king won't capture own men"
-      (is (= (count (generate-moves-for-hopper king-moves bsb :e6)) 5)))
+      (is (= (count ((:generator bking) bsb :e6)) 5)))
     (testing "white... sure"
-      (is (= (count (generate-moves-for-hopper king-moves bsb :e3)) 8)))  
+      (is (= (count ((:generator bking) bsb :e3)) 8)))  
     )
 )
 
