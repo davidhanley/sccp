@@ -19,7 +19,20 @@
   (testing "ray casting"
     (is (= (count (moves-for-slider rook-deltas {:r 0 :f 0})) 2))
     (is (= (count (moves-for-slider bishop-deltas {:r 0 :f 0})) 1)))
-)
+
+  (testing "ray generation"
+    (let [e4-queen-moves (slider-moves (queen-moves :e4) (:white sb) (:black sb))
+          e4-qmd (set (map :t e4-queen-moves))]
+      (print e4-qmd)
+      (is (= (count e4-queen-moves) 19))
+      (is (not (e4-qmd :e4)))
+      (is (e4-qmd :e3))
+      (is (not (e4-qmd :e2)))
+      (is (e4-qmd :e6))
+      (is (e4-qmd :e7))
+      (is (not (e4-qmd :e8)))
+  )))
+
 
 (deftest piece-tests
   (testing "getting side for piece values"
@@ -53,8 +66,8 @@
     (is (every? #(< (:side (char-to-piece %) 0)) "pnbrqk"))
     (is (= (char-to-piece \N) wknight))
   )
- 
 )
+
 
 (deftest move-lookups 
   (testing "knight move counts"

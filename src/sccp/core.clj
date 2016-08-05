@@ -77,6 +77,15 @@
 (def bishop-moves (slider-gen bishop-deltas))
 (def queen-moves (merge-with concat rook-moves bishop-moves))
 
+(defn generate-slide-ray[mine theirs ray]
+  (let [mv (first ray) to (:t mv)]
+  (if (or (= mv nil) (mine to)) []
+    (if (theirs to) [mv] (cons mv (generate-slide-ray mine theirs (rest ray)))))))
+
+(defn slider-moves[rays mine theirs]
+  (mapcat (partial generate-slide-ray mine theirs) rays))
+    
+
 (declare white-pawn-gen black-pawn-gen)
 
 (defn side-for-value[value](if (< value 0) :black :white))
