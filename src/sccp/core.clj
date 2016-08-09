@@ -85,6 +85,13 @@
 (defn slider-moves[rays mine theirs]
   (mapcat (partial generate-slide-ray mine theirs) rays))
     
+(defn slider-movegen[lookup board from-square]
+  (let [rays (lookup from-square)
+        to-move (:to-move board)
+        mine (board to-move)
+        theirs (board (flip-side to-move))]
+    (slider-moves rays mine theirs)))
+  
 
 (declare white-pawn-gen black-pawn-gen)
 
@@ -96,15 +103,15 @@
 
 (defpieces wpawn   "P" 100 nil nil 
            wknight "N" 325 (partial generate-moves-for-hopper knight-moves) nil 
-           wbishop "B" 350 nil nil
-           wrook   "R" 500 nil nil
-           wqueen  "Q" 950 nil nil
+           wbishop "B" 350 (partial slider-movegen bishop-moves) nil
+           wrook   "R" 500 (partial slider-movegen rook-moves) nil
+           wqueen  "Q" 950 (partial slider-movegen queen-moves) nil
            wking   "K" 10000 (partial generate-moves-for-hopper king-moves) nil 
            bpawn   "p" -100 nil nil 
            bknight "n" -325 (partial generate-moves-for-hopper knight-moves) nil 
-           bbishop "b" -350 nil nil
-           brook   "r" -500 nil nil
-           bqueen  "q" -950 nil nil
+           bbishop "b" -350 (partial slider-movegen bishop-moves) nil
+           brook   "r" -500 (partial slider-movegen rook-moves) nil
+           bqueen  "q" -950 (partial slider-movegen queen-moves) nil
            bking   "k" -10000 (partial generate-moves-for-hopper king-moves) nil)
 
 (def char-to-piece (zipmap (map :glyph pieces) pieces))

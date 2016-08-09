@@ -21,9 +21,8 @@
     (is (= (count (moves-for-slider bishop-deltas {:r 0 :f 0})) 1)))
 
   (testing "ray generation"
-    (let [e4-queen-moves (slider-moves (queen-moves :e4) (:white sb) (:black sb))
+    (let [e4-queen-moves ((:generator wqueen) sb :e4)
           e4-qmd (set (map :t e4-queen-moves))]
-      (print e4-qmd)
       (is (= (count e4-queen-moves) 19))
       (is (not (e4-qmd :e4)))
       (is (e4-qmd :e3))
